@@ -10,8 +10,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mis lavados">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="apple-touch-icon" href="img/icono-180.png">
-<link rel="icon" type="image/png" href="img/icono-192.png">
+<link rel="apple-touch-icon" href="icono-180.png">
+<link rel="icon" type="image/png" href="icono-192.png">
 <style>
 :root{
   --rojo:#b0202f; --rojo-osc:#8a1624; --rojo-claro:#fbeaec; --tinta:#17181a; --crema:#f3ece2;
@@ -114,8 +114,8 @@ body{
 /* ===== CONFIGURACIÓN ===== */
 // URL de la Web App de Apps Script (termina en /exec). Es pública; el secreto es el token del enlace.
 const API = 'PEGAR_URL_DEL_WEB_APP_AQUI';
-const ICONO_LAVADORA = 'img/lavadora.png';
-const ICONO_PREMIO = 'img/premio.png';
+const ICONO_LAVADORA = 'lavadora.png';
+const ICONO_PREMIO = 'premio.png';
 
 const $app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
@@ -189,7 +189,7 @@ function pintar(d){
 
   $app.innerHTML =
     '<div class="tarjeta">' +
-      '<div class="cab"><img class="logo" src="img/logo.png" alt="Bloomest Actur · Smart Laundry">' +
+      '<div class="cab"><img class="logo" src="logo.png" alt="Bloomest Actur · Smart Laundry">' +
         '<div class="mes">Promo de<b>' + esc(nombreMes(d.mes)) + '</b></div></div>' +
       '<div class="corte"></div>' +
       '<div class="cuerpo">' +
@@ -212,8 +212,8 @@ function ponerManifest(token){
     name: 'Mis lavados · Bloomest', short_name: 'Mis lavados',
     start_url: base + '?t=' + encodeURIComponent(token), scope: base,
     display: 'standalone', background_color: '#f3ece2', theme_color: '#b0202f',
-    icons: [ { src: base + 'img/icono-192.png', sizes: '192x192', type: 'image/png' },
-             { src: base + 'img/icono-512.png', sizes: '512x512', type: 'image/png' } ]
+    icons: [ { src: base + 'icono-192.png', sizes: '192x192', type: 'image/png' },
+             { src: base + 'icono-512.png', sizes: '512x512', type: 'image/png' } ]
   };
   const l = document.createElement('link');
   l.rel = 'manifest';
