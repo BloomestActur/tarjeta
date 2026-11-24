@@ -49,9 +49,14 @@ body{
 .corte::before{left:-35px}.corte::after{right:-35px}
 
 .cuerpo{padding:20px 20px 22px}
+.titular{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:0 0 16px;padding-bottom:14px;border-bottom:1px solid var(--linea)}
+.titular .etq{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);font-weight:700;margin-bottom:3px}
+.titular .nombre{font-size:17px;font-weight:800;line-height:1.15}
+.titular .num-tarjeta{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:15px;font-weight:700;letter-spacing:.1em;text-align:right}
 .titulo{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--rojo);font-weight:700;margin:0 0 6px}
 .reto{font-size:15px;line-height:1.35;margin:0 0 18px}
 .reto b{color:var(--rojo)}
+.reto .nota{display:block;margin-top:6px;font-size:12.5px;color:var(--gris)}
 
 /* ---------- Casillas ---------- */
 .rejilla{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 10px}
@@ -113,7 +118,7 @@ body{
 <script>
 /* ===== CONFIGURACIÓN ===== */
 // URL de la Web App de Apps Script (termina en /exec). Es pública; el secreto es el token del enlace.
-const API = 'PEGAR_URL_DEL_WEB_APP_AQUI';
+const API = 'https://script.google.com/macros/s/AKfycbybdRove5ZqtfdJekmT8j4VpRTyWKT4Wc6ldkvw9aY7aYxKIiaVST_CDkAI5NVuZtuNmw/exec';
 const ICONO_LAVADORA = 'lavadora.png';
 const ICONO_PREMIO = 'premio.png';
 
@@ -135,6 +140,8 @@ function nombreMes(yyyymm){
   const m = /^(\d{4})-(\d{2})$/.exec(yyyymm || '');
   return m ? new Date(+m[1], +m[2] - 1, 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : '';
 }
+/* E20725E4 -> E207 25E4 */
+function numeroTarjeta(s){ return String(s || '').replace(/\s+/g, '').replace(/(.{4})/g, '$1 ').trim(); }
 /* Días que quedan hasta el último día de la promo (0 = hoy es el último día) */
 function diasRestantes(iso){
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
@@ -187,14 +194,21 @@ function pintar(d){
     mensaje = '<div class="msg">' + f.charAt(0).toUpperCase() + f.slice(1) + q + ' para ganar <b>' + esc(d.premio) + '</b>.</div>';
   }
 
+  const titular = (d.usuario || d.tarjeta)
+    ? '<div class="titular"><div><div class="etq">Titular</div><div class="nombre">' + esc(d.usuario || '') + '</div></div>' +
+      (d.tarjeta ? '<div><div class="etq" style="text-align:right">Nº tarjeta</div><div class="num-tarjeta">' + esc(numeroTarjeta(d.tarjeta)) + '</div></div>' : '') + '</div>'
+    : '';
+
   $app.innerHTML =
     '<div class="tarjeta">' +
       '<div class="cab"><img class="logo" src="logo.png" alt="Bloomest Actur · Smart Laundry">' +
         '<div class="mes">Promo de<b>' + esc(nombreMes(d.mes)) + '</b></div></div>' +
       '<div class="corte"></div>' +
       '<div class="cuerpo">' +
+        titular +
         '<p class="titulo">' + esc(d.titulo || 'Tarjeta de lavados') + '</p>' +
-        '<p class="reto">Completa <b>' + n + ' lavados</b> este mes y gana <b>' + esc(d.premio) + '</b>.</p>' +
+        '<p class="reto">Completa <b>' + n + ' lavados</b> este mes y gana <b>' + esc(d.premio) + '</b>.' +
+          (d.nota ? '<span class="nota">' + esc(d.nota) + '</span>' : '') + '</p>' +
         '<div class="rejilla">' + huecos + '</div>' +
         '<div class="estado"><div class="contador"><b>' + hechosN + '</b><span>/ ' + n + '</span><small>lavados</small></div>' + plazo + '</div>' +
         '<div class="barra"><i style="width:' + Math.round(hechosN / n * 100) + '%"></i></div>' +
@@ -231,7 +245,7 @@ function avisoInstalar(){
   a.hidden = false;
 }
 
-/* Modo demostración para probar el diseño sin backend: ?demo=3 (lavados hechos) */
+/* Modo demostración (datos inventados) para probar el diseño sin backend: ?demo=3 (lavados hechos) */
 function demo(n){
   const hoy = new Date(), objetivo = 5, lav = [];
   for (let i = 0; i < Math.min(n, objetivo); i++) {
@@ -239,7 +253,8 @@ function demo(n){
     lav.push({ fecha: f.getFullYear() + '-' + String(f.getMonth() + 1).padStart(2, '0') + '-' + String(f.getDate()).padStart(2, '0') });
   }
   const fin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
-  return { ok: true, mes: hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0'), titulo: 'Tarjeta de lavados',
+  return { ok: true, usuario: 'Laura Ejemplo', tarjeta: 'A1B2C3D4', nota: 'Solo cuentan los lavados en las lavadoras grandes (C y D).',
+    mes: hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0'), titulo: 'Tarjeta de lavados',
     objetivo, premio: '1 lavado gratis', lavados: lav, total: n, completada: n >= objetivo, premioEnviado: n >= objetivo,
     caduca: fin.getFullYear() + '-' + String(fin.getMonth() + 1).padStart(2, '0') + '-' + String(fin.getDate()).padStart(2, '0') };
 }
